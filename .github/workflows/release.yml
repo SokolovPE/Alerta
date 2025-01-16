@@ -1,0 +1,82 @@
+name: Release Workflow
+
+on:
+  push:
+    tags:
+      - "v*" # Trigger on tag pushes
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set new directory name
+        id: set_dir_name
+        run: |
+          NEW_DIR_NAME="Alerta"
+          echo "new_dir_name=$NEW_DIR_NAME" >> $GITHUB_OUTPUT
+
+      - name: Rename src directory
+        run: |
+          mv src ${{ steps.set_dir_name.outputs.new_dir_name }}
+          echo "Renamed 'src' to '${{ steps.set_dir_name.outputs.new_dir_name }}'"
+
+      - name: Extract version from alerta.toc
+        id: extract_version
+        run: |
+          CONFIG_FILE="${{ steps.set_dir_name.outputs.new_dir_name }}/alerta.toc"
+          if [ -f "$CONFIG_FILE" ]; then
+            VERSION=$(grep '^## Version:' "$CONFIG_FILE" | awk '{print $3}')
+            echo "Extracted version: $VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Error: alerta.toc file not found in ${{ steps.set_dir_name.outputs.new_dir_name }}"
+            exit 1
+          fi
+
+      - name: Compare extracted version with commit tag
+        run: |
+          EXTRACTED_VERSION="v${{ steps.extract_version.outputs.version }}"
+          COMMIT_TAG="${GITHUB_REF#refs/tags/}" # Extract tag from GITHUB_REF
+          echo "Extracted Version: $EXTRACTED_VERSION"
+          echo "Commit Tag: $COMMIT_TAG"
+          if [ "$EXTRACTED_VERSION" != "$COMMIT_TAG" ]; then
+            echo "Tag version ($COMMIT_TAG) must be the same as addon version (${EXTRACTED_VERSION})"
+            exit 1
+          else
+            echo "Versions match!"
+          fi
+
+      - name: Create zip archive
+        id: create_zip
+        run: |
+          ZIP_NAME="${{ steps.set_dir_name.outputs.new_dir_name }}_${{ steps.extract_version.outputs.version }}.zip"
+          zip -r "$ZIP_NAME" "${{ steps.set_dir_name.outputs.new_dir_name }}"
+          echo "zip_name=$ZIP_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub release
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload zip archive to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.create_zip.outputs.zip_name }}
+          asset_name: ${{ steps.create_zip.outputs.zip_name }}
+          asset_content_type: application/zip
