@@ -1,0 +1,39 @@
+name: Create release
+
+# on:
+#   # Triggers the workflow on push or pull request events but only for the "master" branch
+#   push:
+#     branches: [ "master" ]
+#   pull_request:
+#     branches: [ "master" ]
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release pushed tag
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAG_VERSION: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - name:  Pre-release check
+        run: |
+          mv src Alerta # Rename folder to prepare to be zipped
+          ADDON_VERSION=v$(grep "## Version:" Alerta/alerta.toc | sed 's/^.*: //') # Extract addon version
+          echo "$ADDON_VERSION"
+          if [ "$TAG_VERSION" != ${ADDON_VERSION} ]; then
+            echo "Tag version ($TAG_VERSION) must be the same as addon version (${ADDON_VERSION})"
+            exit 1
+          fi
+          zip -r Alerta_${ADDON_VERSION}.zip Alerta
+          gh release create "$TAG_VERSION" Alerta_${ADDON_VERSION}.zip \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${TAG_VERSION#v}" \
+              --generate-notes

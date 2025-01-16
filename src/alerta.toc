@@ -1,0 +1,12 @@
+## Interface: 11505
+## Version: 1.0.1
+## Title: Alerta
+## Notes: Addon alerts about incoming threats
+## Author: SokolovP
+## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, Blizzard_TimeManager
+## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, CallbackHandler-1.0, LibStub
+## SavedVariablesPerCharacter: AlertaSettings
+embeds.xml
+
+alerta.lua
+options.lua
