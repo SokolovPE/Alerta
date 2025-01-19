@@ -27,9 +27,13 @@ function alerta:ADDON_LOADED(_, addOnName)
         eliteSound = "Interface\\AddOns\\Alerta\\Sounds\\AlertUnexpected.ogg",
         channel = "Master",
         printAnotherOne = false,
-        eliteSoundOn = false
+        eliteSoundOn = false,
+		minimap = { hide = false }, -- Default to showing the minimap icon
     }
     AlertaSettings = AlertaSettings or dbDefaults
+
+	-- Initialize minimap icon
+    self:InitializeMinimapIcon()
 
     Output("Loaded " .. WrapTextInColorCode("successfully", COLOR_CODES.Success))
 end

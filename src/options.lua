@@ -10,6 +10,10 @@ LSM:Register("sound", "Alerta:Unexpected", "Interface\\AddOns\\Alerta\\Sounds\\A
 LSM:Register("sound", "Alerta:AnotherOne", "Interface\\AddOns\\Alerta\\Sounds\\AnotherOne.ogg")
 LSM:Register("sound", "Alerta:HelloThere", "Interface\\AddOns\\Alerta\\Sounds\\HelloThere.ogg")
 
+-- Embed LibDBIcon-1.0
+local LibDBIcon = LibStub("LibDBIcon-1.0")
+local LibDataBroker = LibStub("LibDataBroker-1.1")
+
 local sounds = {}
 local channels = {
     Master   = "Master",
@@ -18,6 +22,32 @@ local channels = {
     Ambience = "Ambience",
     Dialog   = "Dialog"
 }
+
+-- Create a minimap button
+local minimapButton = LibDataBroker:NewDataObject("Alerta", {
+    icon = "Interface\\Icons\\Inv_misc_head_dragon_01", -- Icon for the minimap button
+    OnClick = function(_, button)
+        if button == "LeftButton" then
+            -- Open the AceConfig dialog
+            LibStub("AceConfigDialog-3.0"):Open("Alerta")
+        elseif button == "RightButton" then
+            -- Toggle minimap icon visibility
+            AlertaSettings.minimap.hide = not AlertaSettings.minimap.hide
+            LibDBIcon:Refresh("Alerta", AlertaSettings.minimap)
+        end
+    end,
+    OnTooltipShow = function(tooltip)
+        tooltip:AddLine("Alerta")
+        tooltip:AddLine("Left-click to open settings.")
+        tooltip:AddLine("Right-click to hide the minimap icon.")
+    end,
+})
+
+-- Initialize minimap icon
+function alerta:InitializeMinimapIcon()
+    AlertaSettings.minimap = AlertaSettings.minimap or { hide = false }
+    LibDBIcon:Register("Alerta", minimapButton, AlertaSettings.minimap)
+end
 
 for sndName, path in next, LSM:HashTable("sound") do
     sounds[path] = sndName
@@ -68,9 +98,21 @@ mod.options = {
                         return AlertaSettings.sound
                     end,
                 },
+                customSound = {
+                    type = "input",
+                    order = 13,
+                    name = "Custom Sound Path",
+                    desc = "Enter the path to a custom sound file.\nExample: Interface\\AddOns\\Alerta\\Sounds\\Custom.ogg",
+                    set = function(_, val)
+                        AlertaSettings.customSound = val
+                    end,
+                    get = function()
+                        return AlertaSettings.customSound or ""
+                    end,
+                },
                 channel = {
                     type = "select",
-                    order = 13,
+                    order = 14,
                     values = channels,
                     name = "Sound Channel",
                     desc = "Choose the channel to play the alert sound.",
@@ -84,7 +126,7 @@ mod.options = {
                 testSound = {
                     type = "execute",
                     name = "Preview Alert Sound",
-                    order = 14,
+                    order = 15,
                     func = function()
                         PlaySoundFile(AlertaSettings.sound, AlertaSettings.channel)
                     end,
@@ -93,12 +135,12 @@ mod.options = {
                 spacer1 = {
                     type = "header",
                     name = "",
-                    order = 15,
+                    order = 16,
                 },
                 -- Chat Output Toggle
                 printAnotherOne = {
                     type = "toggle",
-                    order = 16,
+                    order = 17,
                     width = "full",
                     name = "Print Aggro to Chat",
                     desc = "Output a message to chat when a new mob gains aggro.",
@@ -173,6 +215,69 @@ mod.options = {
                     end,
                     hidden = function()
                         return not AlertaSettings.eliteSoundOn
+                    end,
+                },
+            },
+        },
+        -- Minimap Settings Tab
+        minimapSettings = {
+            type = "group",
+            name = "Minimap",
+            order = 3,
+            args = {
+                -- Minimap Settings Header
+                minimapHeader = {
+                    type = "header",
+                    name = "Minimap Settings",
+                    order = 30,
+                },
+                minimapDesc = {
+                    type = "description",
+                    name = "Configure the minimap icon settings.",
+                    fontSize = "medium",
+                    order = 31,
+                },
+                minimapIcon = {
+                    type = "toggle",
+                    order = 32,
+                    name = "Show Minimap Icon",
+                    desc = "Toggle the minimap icon on or off.",
+                    get = function()
+                        return not AlertaSettings.minimap.hide
+                    end,
+                    set = function(_, value)
+                        AlertaSettings.minimap.hide = not value
+                        LibDBIcon:Refresh("Alerta", AlertaSettings.minimap)
+                    end,
+                },
+            },
+        },
+        -- Reset to Defaults
+        resetSettings = {
+            type = "group",
+            name = "Reset",
+            order = 4,
+            args = {
+                -- Reset Settings Header
+                resetHeader = {
+                    type = "header",
+                    name = "Reset Settings",
+                    order = 40,
+                },
+                resetDesc = {
+                    type = "description",
+                    name = "Reset all settings to their default values.",
+                    fontSize = "medium",
+                    order = 41,
+                },
+                resetButton = {
+                    type = "execute",
+                    order = 42,
+                    name = "Reset to Defaults",
+                    desc = "Reset all settings to default values.",
+                    func = function()
+                        AlertaSettings = nil
+                        ReloadUI()
                     end,
                 },
             },
