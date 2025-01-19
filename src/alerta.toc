@@ -2,7 +2,7 @@
 ## Title: Alerta
 ## Notes: Alerts the player about incoming threats with customizable sounds and notifications.
 ## Author: SokolovP
-## Version: 1.0.1
+## Version: 1.0.2
 ## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, Blizzard_TimeManager
 ## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, CallbackHandler-1.0, LibStub
 ## SavedVariablesPerCharacter: AlertaSettings
