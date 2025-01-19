@@ -35,107 +35,156 @@ end)
 mod.options = {
     type = "group",
     name = ALERTA_NAME,
+    childGroups = "tab", -- Use tabs for better organization
     args = {
-        sound = {
-            type = "select",
+        -- General Settings Tab
+        generalSettings = {
+            type = "group",
+            name = "General",
             order = 1,
-            values = sounds,
-            name = "Sound",
-            desc = "Set sound of alert",
-            set = function(_, val)
-                AlertaSettings.sound = val
-            end,
-            get = function(_)
-                return AlertaSettings.sound
-            end
+            args = {
+                -- Sound Settings Header
+                soundHeader = {
+                    type = "header",
+                    name = "Sound Settings",
+                    order = 10,
+                },
+                soundDesc = {
+                    type = "description",
+                    name = "Configure the sound settings for alerts.",
+                    fontSize = "medium",
+                    order = 11,
+                },
+                sound = {
+                    type = "select",
+                    order = 12,
+                    values = sounds,
+                    name = "Alert Sound",
+                    desc = "Choose the sound to play for alerts.",
+                    set = function(_, val)
+                        AlertaSettings.sound = val
+                    end,
+                    get = function(_)
+                        return AlertaSettings.sound
+                    end,
+                },
+                channel = {
+                    type = "select",
+                    order = 13,
+                    values = channels,
+                    name = "Sound Channel",
+                    desc = "Choose the channel to play the alert sound.",
+                    set = function(_, val)
+                        AlertaSettings.channel = val
+                    end,
+                    get = function(_)
+                        return AlertaSettings.channel
+                    end,
+                },
+                testSound = {
+                    type = "execute",
+                    name = "Preview Alert Sound",
+                    order = 14,
+                    func = function()
+                        PlaySoundFile(AlertaSettings.sound, AlertaSettings.channel)
+                    end,
+                },
+                -- Spacer
+                spacer1 = {
+                    type = "header",
+                    name = "",
+                    order = 15,
+                },
+                -- Chat Output Toggle
+                printAnotherOne = {
+                    type = "toggle",
+                    order = 16,
+                    width = "full",
+                    name = "Print Aggro to Chat",
+                    desc = "Output a message to chat when a new mob gains aggro.",
+                    set = function(_, val)
+                        AlertaSettings.printAnotherOne = val
+                    end,
+                    get = function(_)
+                        return AlertaSettings.printAnotherOne
+                    end,
+                },
+            },
         },
-        channel = {
-            type = "select",
+        -- Elite Mob Settings Tab
+        eliteSettings = {
+            type = "group",
+            name = "Elite Mobs",
             order = 2,
-            values = channels,
-            name = "Channel",
-            desc = "Channel to play sound at",
-            set = function(_, val)
-                AlertaSettings.channel = val
-            end,
-            get = function(_)
-                return AlertaSettings.channel
-            end
+            args = {
+                -- Elite Settings Header
+                eliteHeader = {
+                    type = "header",
+                    name = "Elite Mob Settings",
+                    order = 20,
+                },
+                eliteDesc = {
+                    type = "description",
+                    name = "Configure settings for elite mob alerts.",
+                    fontSize = "medium",
+                    order = 21,
+                },
+                eliteSoundOn = {
+                    type = "toggle",
+                    order = 22,
+                    width = "full",
+                    name = "Enable Elite Sound",
+                    desc = "Use a different sound for elite mobs.",
+                    set = function(_, val)
+                        AlertaSettings.eliteSoundOn = val
+                    end,
+                    get = function(_)
+                        return AlertaSettings.eliteSoundOn
+                    end,
+                },
+                eliteSound = {
+                    type = "select",
+                    order = 23,
+                    values = sounds,
+                    name = "Elite Alert Sound",
+                    desc = "Choose the sound to play for elite mob alerts.",
+                    set = function(_, val)
+                        AlertaSettings.eliteSound = val
+                    end,
+                    get = function(_)
+                        return AlertaSettings.eliteSound
+                    end,
+                    disabled = function()
+                        return not AlertaSettings.eliteSoundOn
+                    end,
+                    hidden = function()
+                        return not AlertaSettings.eliteSoundOn
+                    end,
+                },
+                testEliteSound = {
+                    type = "execute",
+                    name = "Preview Elite Sound",
+                    order = 24,
+                    func = function()
+                        PlaySoundFile(AlertaSettings.eliteSound, AlertaSettings.channel)
+                    end,
+                    disabled = function()
+                        return not AlertaSettings.eliteSoundOn
+                    end,
+                    hidden = function()
+                        return not AlertaSettings.eliteSoundOn
+                    end,
+                },
+            },
         },
-        test = {
-            type = "execute",
-            name = "Preview",
-            order = 3,
-            func = function()
-                PlaySoundFile(AlertaSettings.sound, AlertaSettings.channel)
-            end
-        },
-        lineBreak1 = {
-            type = "header",
-            name = "",
-            order = 4,
-        },
-        eliteSoundOn = {
-            type = "toggle",
-            order = 5,
-            width = "full",
-            name = "Different elite sound",
-            desc = "Use different sound for elite mobs",
-            set = function(_, val)
-                AlertaSettings.eliteSoundOn = val
-            end,
-            get = function(_)
-                return AlertaSettings.eliteSoundOn
-            end
-        },
-        eliteSound = {
-            type = "select",
-            order = 6,
-            values = sounds,
-            name = "Sound",
-            desc = "Set sound of alert",
-            set = function(_, val)
-                AlertaSettings.eliteSound = val
-            end,
-            get = function(_)
-                return AlertaSettings.eliteSound
-            end,
-            disabled = function() return not AlertaSettings.eliteSoundOn end, -- Disabled if enableFeature is false
-            hidden = function() return not AlertaSettings.eliteSoundOn end,   -- Hidden if enableFeature is false
-        },
-        test = {
-            type = "execute",
-            name = "Preview",
-            order = 7,
-            func = function()
-                PlaySoundFile(AlertaSettings.eliteSound, AlertaSettings.channel)
-            end
-        },
-        lineBreak2 = {
-            type = "header",
-            name = "",
-            order = 8,
-        },
-        printAnotherOne = {
-            type = "toggle",
-            order = 9,
-            width = "full",
-            name = "Print aggro to chat",
-            desc = "Output new mob alert to chat",
-            set = function(_, val)
-                AlertaSettings.printAnotherOne = val
-            end,
-            get = function(_)
-                return AlertaSettings.printAnotherOne
-            end
-        }
-    }
+    },
 }
 
 -- Setup config
 LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(name, mod.options, true)
 local _, categoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(name)
 
+-- Slash command to open config
 SLASH_ALERTA1 = "/alerta"
 SlashCmdList["ALERTA"] = function(_)
     LibStub("AceConfigDialog-3.0"):Open(name)
