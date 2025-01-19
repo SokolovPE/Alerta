@@ -2,6 +2,14 @@ local name, alerta = ...
 alerta.core = {}
 alerta.core.settings = {}
 local mod = alerta.core
+AlertaOptions = {
+    ALERTA_NAME = "Alerta",
+    COLOR_CODES = {
+        Success = "FF00FF0D",
+        Info = "FF0085DD"
+    }
+}
+
 
 -- Register shared sounds
 local LSM = LibStub("LibSharedMedia-3.0")
@@ -13,6 +21,7 @@ LSM:Register("sound", "Alerta:HelloThere", "Interface\\AddOns\\Alerta\\Sounds\\H
 -- Embed LibDBIcon-1.0
 local LibDBIcon = LibStub("LibDBIcon-1.0")
 local LibDataBroker = LibStub("LibDataBroker-1.1")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 
 local sounds = {}
 local channels = {
@@ -24,29 +33,30 @@ local channels = {
 }
 
 -- Create a minimap button
-local minimapButton = LibDataBroker:NewDataObject("Alerta", {
+local minimapButton = LibDataBroker:NewDataObject(AlertaOptions.ALERTA_NAME, {
     icon = "Interface\\Icons\\Inv_misc_head_dragon_01", -- Icon for the minimap button
     OnClick = function(_, button)
         if button == "LeftButton" then
             -- Open the AceConfig dialog
-            LibStub("AceConfigDialog-3.0"):Open("Alerta")
+            AceConfigDialog:Open(AlertaOptions.ALERTA_NAME)
         elseif button == "RightButton" then
             -- Toggle minimap icon visibility
             AlertaSettings.minimap.hide = not AlertaSettings.minimap.hide
-            LibDBIcon:Refresh("Alerta", AlertaSettings.minimap)
+            LibDBIcon:Refresh(AlertaOptions.ALERTA_NAME, AlertaSettings.minimap)
         end
     end,
     OnTooltipShow = function(tooltip)
-        tooltip:AddLine("Alerta")
+        tooltip:AddLine(AlertaOptions.ALERTA_NAME)
         tooltip:AddLine("Left-click to open settings.")
         tooltip:AddLine("Right-click to hide the minimap icon.")
     end,
+    type = "launcher",
 })
 
 -- Initialize minimap icon
-function alerta:InitializeMinimapIcon()
+function AlertaOptions:InitializeMinimapIcon()
     AlertaSettings.minimap = AlertaSettings.minimap or { hide = false }
-    LibDBIcon:Register("Alerta", minimapButton, AlertaSettings.minimap)
+    LibStub("LibDBIcon-1.0"):Register(AlertaOptions.ALERTA_NAME, minimapButton, AlertaSettings.minimap)
 end
 
 for sndName, path in next, LSM:HashTable("sound") do
@@ -64,7 +74,7 @@ end)
 
 mod.options = {
     type = "group",
-    name = ALERTA_NAME,
+    name = AlertaOptions.ALERTA_NAME,
     childGroups = "tab", -- Use tabs for better organization
     args = {
         -- General Settings Tab
@@ -98,18 +108,19 @@ mod.options = {
                         return AlertaSettings.sound
                     end,
                 },
-                customSound = {
-                    type = "input",
-                    order = 13,
-                    name = "Custom Sound Path",
-                    desc = "Enter the path to a custom sound file.\nExample: Interface\\AddOns\\Alerta\\Sounds\\Custom.ogg",
-                    set = function(_, val)
-                        AlertaSettings.customSound = val
-                    end,
-                    get = function()
-                        return AlertaSettings.customSound or ""
-                    end,
-                },
+                -- customSound = {
+                --     type = "input",
+                --     order = 13,
+                --     name = "Custom Sound Path",
+                --     desc =
+                --     "Enter the path to a custom sound file.\nExample: Interface\\AddOns\\Alerta\\Sounds\\Custom.ogg",
+                --     set = function(_, val)
+                --         AlertaSettings.customSound = val
+                --     end,
+                --     get = function()
+                --         return AlertaSettings.customSound or ""
+                --     end,
+                -- },
                 channel = {
                     type = "select",
                     order = 14,
@@ -247,7 +258,7 @@ mod.options = {
                     end,
                     set = function(_, value)
                         AlertaSettings.minimap.hide = not value
-                        LibDBIcon:Refresh("Alerta", AlertaSettings.minimap)
+                        LibDBIcon:Refresh(AlertaOptions.ALERTA_NAME, AlertaSettings.minimap)
                     end,
                 },
             },
@@ -287,11 +298,12 @@ mod.options = {
 
 -- Setup config
 LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(name, mod.options, true)
-local _, categoryID = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(name)
+local _, categoryID = AceConfigDialog:AddToBlizOptions(name)
 
 -- Slash command to open config
 SLASH_ALERTA1 = "/alerta"
 SlashCmdList["ALERTA"] = function(_)
-    LibStub("AceConfigDialog-3.0"):Open(name)
-    LibStub("AceConfigDialog-3.0"):SelectGroup(name, categoryID)
+    LibStub("AceConfigDialog-3.0")
+    AceConfigDialog:Open(name)
+    AceConfigDialog:SelectGroup(name, categoryID)
 end

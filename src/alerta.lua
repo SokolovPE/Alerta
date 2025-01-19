@@ -1,9 +1,3 @@
-ALERTA_NAME = "Alerta"
-COLOR_CODES = {
-    Success = "FF00FF0D",
-    Info = "FF0085DD"
-}
-
 local alerta = CreateFrame("Frame")
 local mobListSize = 30
 
@@ -19,7 +13,7 @@ end
 
 -- Addon loaded
 function alerta:ADDON_LOADED(_, addOnName)
-    if addOnName ~= ALERTA_NAME then return end
+    if addOnName ~= AlertaOptions.ALERTA_NAME then return end
 
     -- Default settings
     local dbDefaults = {
@@ -28,14 +22,14 @@ function alerta:ADDON_LOADED(_, addOnName)
         channel = "Master",
         printAnotherOne = false,
         eliteSoundOn = false,
-		minimap = { hide = false }, -- Default to showing the minimap icon
+        minimap = { hide = false }, -- Default to showing the minimap icon
     }
     AlertaSettings = AlertaSettings or dbDefaults
 
-	-- Initialize minimap icon
-    self:InitializeMinimapIcon()
+    -- Initialize minimap icon
+    AlertaOptions:InitializeMinimapIcon()
 
-    Output("Loaded " .. WrapTextInColorCode("successfully", COLOR_CODES.Success))
+    Output("Loaded " .. WrapTextInColorCode("successfully", AlertaOptions.COLOR_CODES.Success))
 end
 
 -- Threat list updated
@@ -87,7 +81,7 @@ function alerta:AppendThreat(unitId)
     if self:AppendToTable(threats, uid) then
         self:PlaySound(unitId)
         if AlertaSettings.printAnotherOne then
-            Output("Another one! " .. WrapTextInColorCode(uid, COLOR_CODES.Info))
+            Output("Another one! " .. WrapTextInColorCode(uid, AlertaOptions.COLOR_CODES.Info))
         end
     end
 end
@@ -145,9 +139,9 @@ end
 
 -- Output message to chat
 function Output(msg)
-    local printMsg = WrapTextInColorCode("[", COLOR_CODES.Info) ..
+    local printMsg = WrapTextInColorCode("[", AlertaOptions.COLOR_CODES.Info) ..
         "Alerta |TInterface\\Icons\\Inv_misc_head_dragon_01:12|t" ..
-        WrapTextInColorCode("]", COLOR_CODES.Info) ..
+        WrapTextInColorCode("]", AlertaOptions.COLOR_CODES.Info) ..
         " " .. msg
     print(printMsg)
 end

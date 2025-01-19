@@ -3,11 +3,10 @@
 ## Notes: Alerts the player about incoming threats with customizable sounds and notifications.
 ## Author: SokolovP
 ## Version: 1.0.2
-## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, Blizzard_TimeManager
-## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, CallbackHandler-1.0, LibStub
+## OptionalDeps: AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, Blizzard_TimeManager
+## X-Embeds: AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, CallbackHandler-1.0, LibStub
 ## SavedVariablesPerCharacter: AlertaSettings
 
-## Dependencies: Ace3
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
 ## LoadWith: Blizzard_TimeManager
@@ -19,5 +18,5 @@
 
 embeds.xml
 
-alerta.lua
 options.lua
+alerta.lua
