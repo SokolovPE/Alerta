@@ -1,11 +1,22 @@
 ## Interface: 11505
-## Version: 1.0.1
 ## Title: Alerta
-## Notes: Addon alerts about incoming threats
+## Notes: Alerts the player about incoming threats with customizable sounds and notifications.
 ## Author: SokolovP
+## Version: 1.0.1
 ## OptionalDeps: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, Blizzard_TimeManager
 ## X-Embeds: Ace3, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0, LibChatAnims, CallbackHandler-1.0, LibStub
 ## SavedVariablesPerCharacter: AlertaSettings
+
+## Dependencies: Ace3
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## LoadWith: Blizzard_TimeManager
+
+## X-Category: Combat
+## X-Website: https://github.com/SokolovPE/Alerta
+## X-License: MIT
+## X-Credits: Thanks to the Ace3 team for their amazing libraries.
+
 embeds.xml
 
 alerta.lua
