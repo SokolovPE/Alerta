@@ -70,9 +70,55 @@ mod.options = {
                 PlaySoundFile(AlertaSettings.sound, AlertaSettings.channel)
             end
         },
+        lineBreak1 = {
+            type = "header",
+            name = "",
+            order = 4,
+        },
+        eliteSoundOn = {
+            type = "toggle",
+            order = 5,
+            width = "full",
+            name = "Different elite sound",
+            desc = "Use different sound for elite mobs",
+            set = function(_, val)
+                AlertaSettings.eliteSoundOn = val
+            end,
+            get = function(_)
+                return AlertaSettings.eliteSoundOn
+            end
+        },
+        eliteSound = {
+            type = "select",
+            order = 6,
+            values = sounds,
+            name = "Sound",
+            desc = "Set sound of alert",
+            set = function(_, val)
+                AlertaSettings.eliteSound = val
+            end,
+            get = function(_)
+                return AlertaSettings.eliteSound
+            end,
+            disabled = function() return not AlertaSettings.eliteSoundOn end, -- Disabled if enableFeature is false
+            hidden = function() return not AlertaSettings.eliteSoundOn end,   -- Hidden if enableFeature is false
+        },
+        test = {
+            type = "execute",
+            name = "Preview",
+            order = 7,
+            func = function()
+                PlaySoundFile(AlertaSettings.eliteSound, AlertaSettings.channel)
+            end
+        },
+        lineBreak2 = {
+            type = "header",
+            name = "",
+            order = 8,
+        },
         printAnotherOne = {
             type = "toggle",
-            order = 4,
+            order = 9,
             width = "full",
             name = "Print aggro to chat",
             desc = "Output new mob alert to chat",

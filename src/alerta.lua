@@ -48,8 +48,10 @@ function alerta:ADDON_LOADED(_, addOnName)
 
 	local dbDefaults = {
 		sound = "Interface\\AddOns\\Alerta\\Sounds\\Alerta.ogg",
+		eliteSound = "Interface\\AddOns\\Alerta\\Sounds\\AlertUnexpected.ogg",
 		channel = "Master",
-		printAnotherOne = false
+		printAnotherOne = false,
+		eliteSoundOn = false
 	}
 	AlertaSettings = AlertaSettings or dbDefaults
 	Output("Loaded " .. WrapTextInColorCode("successfully", COLOR_CODES.Success))
@@ -98,12 +100,25 @@ function alerta:UNIT_SPELLCAST_SENT(_, unit, target, castGUID, spellID)
 	end
 end
 
+-- Mob attacked even when nameplates are off
+function alerta:COMBAT_LOG_EVENT_UNFILTERED(_, subEvent, _, _, _, _, _, destGUID, _, _, _, _)
+	if (subEvent == "SWING_DAMAGE" or subEvent == "SPELL_DAMAGE") then
+		if destGUID == UnitGUID("player") then
+			local sourceGUID = select(8, CombatLogGetCurrentEventInfo())
+			if sourceGUID and not UnitIsUnit(sourceGUID, "target") then
+				alerta:appendToTable(mobs, sourceGUID)
+			end
+		end
+	end
+end
+
 alerta:RegisterEvent("ADDON_LOADED")
 alerta:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
 alerta:RegisterEvent("NAME_PLATE_UNIT_ADDED")
 alerta:RegisterEvent("PLAYER_REGEN_ENABLED")
 alerta:RegisterEvent("UNIT_COMBAT")
 alerta:RegisterEvent("UNIT_SPELLCAST_SENT")
+alerta:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 alerta:SetScript("OnEvent", alerta.OnEvent)
 alerta:SetScript("OnUpdate", alerta.OnUpdate)
 
@@ -136,7 +151,11 @@ end
 
 -- Play sound
 function alerta:playSound()
-	PlaySoundFile(AlertaSettings.sound, AlertaSettings.channel)
+	local soundFile = AlertaSettings.sound
+    if ((AlertaSettings.eliteSoundOn or false) == true and (UnitClassification(unitId) == "elite" or UnitClassification(unitId) == "rareelite")) then
+        soundFile = AlertaSettings.eliteSound
+    end
+    PlaySoundFile(soundFile, AlertaSettings.channel)
 end
 
 function alerta:appendToTable(table, targetId)
