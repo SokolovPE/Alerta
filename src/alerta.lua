@@ -54,6 +54,14 @@ function alerta:PLAYER_REGEN_ENABLED()
     self:ClearTable(threats)
 end
 
+-- Unit casted a spell
+function alerta:UNIT_SPELLCAST_SENT(_, unit, target, castGUID, spellID)
+    if (target ~= "player" and target ~= nil) then
+        local uid = UnitGUID("target")
+        self:AppendToTable(playerAwareTargets, uid)
+    end
+end
+
 -- Mob attacks player (even without nameplates)
 function alerta:COMBAT_LOG_EVENT_UNFILTERED()
     local _, subEvent, _, _, _, _, _, destGUID, _, _, _, _ = CombatLogGetCurrentEventInfo()
@@ -149,6 +157,7 @@ end
 -- Register events
 alerta:RegisterEvent("ADDON_LOADED")
 alerta:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
+alerta:RegisterEvent("UNIT_SPELLCAST_SENT")
 alerta:RegisterEvent("NAME_PLATE_UNIT_ADDED")
 alerta:RegisterEvent("PLAYER_REGEN_ENABLED")
 alerta:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
