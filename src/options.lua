@@ -6,7 +6,9 @@ AlertaOptions = {
     ALERTA_NAME = "Alerta",
     COLOR_CODES = {
         Success = "FF00FF0D",
-        Info = "FF0085DD"
+        Info = "FF0085DD",
+        Warning = "FFF4680D",
+        Critical = "C4DD1E1E"
     }
 }
 

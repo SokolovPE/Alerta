@@ -88,9 +88,32 @@ function alerta:AppendThreat(unitId)
 
     if self:AppendToTable(threats, uid) then
         self:PlaySound(unitId)
-        if AlertaSettings.printAnotherOne then
-            Output("Another one! " .. WrapTextInColorCode(uid, AlertaOptions.COLOR_CODES.Info))
-        end
+        self:PrintAggro(unitId, uid)
+    end
+end
+
+function alerta:PrintAggro(unitId, uid)
+    if not AlertaSettings.printAnotherOne then return end
+    local lvl = UnitLevel(unitId) or 0;
+    local name = UnitName(unitId) or uid;
+    local colorCode = AlertaOptions.COLOR_CODES.Info;
+
+    -- Define color code
+    local lvlDiff = UnitLevel("player") - lvl;
+    if lvlDiff < -2 then
+        colorCode = AlertaOptions.COLOR_CODES.Critical;
+    elseif lvlDiff >= -2 and lvlDiff < 0 then
+        colorCode = AlertaOptions.COLOR_CODES.Warning;
+    elseif lvlDiff >= 0 and lvlDiff <= 2 then
+        colorCode = AlertaOptions.COLOR_CODES.Info;
+    else
+        colorCode = AlertaOptions.COLOR_CODES.Success;
+    end
+
+    if lvl > 0 then
+        Output("Got aggro! " .. WrapTextInColorCode("[" .. lvl .. "] " .. name, colorCode))
+    else
+        Output("Got aggro! " .. WrapTextInColorCode(name, AlertaOptions.COLOR_CODES.Info))
     end
 end
 
