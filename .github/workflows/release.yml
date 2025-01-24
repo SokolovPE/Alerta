@@ -8,14 +8,19 @@ on:
 permissions:
   contents: write
 
+env:
+  GITHUB_BRANCH: ${{ github.ref_name }}
+
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Exit if not on master branch
-        if: ${{ github.ref != 'refs/heads/master' }}
-        run: exit -1
+      - name: Exit if not on master branch or version tag
+        if: ${{ github.ref != 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/v')  }}
+        run: |
+          echo ${{ github.ref }}
+          exit -1
 
       - name: Checkout repository
         uses: actions/checkout@v3

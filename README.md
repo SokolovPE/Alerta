@@ -1,5 +1,6 @@
-# <img width="36" height="36" src="inv_misc_head_dragon_01.jpg" alt="image" style="vertical-align: middle;"/> Alerta
+[![Install](https://img.shields.io/badge/install-curseforge-f16436)](https://www.curseforge.com/wow/addons/alerta)
 
+# <img width="36" height="36" src="inv_misc_head_dragon_01.jpg" alt="image" style="vertical-align: middle;"/> Alerta
 Alerta is a WoW add-on that informs you of unexpected mob aggro.
 
 Designed for `WoW Classic Hardcore`.
