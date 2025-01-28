@@ -2,6 +2,7 @@ local alerta = CreateFrame("Frame")
 local mobListSize = 30
 
 -- Tables to track mobs and threats
+local lastManualTargetUid = nil
 local mobs = {}
 local threats = {}
 local playerAwareTargets = {}
@@ -52,6 +53,30 @@ end
 -- Player exits combat
 function alerta:PLAYER_REGEN_ENABLED()
     self:ClearTable(threats)
+end
+
+-- Player started combat
+function alerta:PLAYER_REGEN_DISABLED()
+    -- if target is empty but regen disabled
+    -- if last threat is not a current target
+    if not UnitExists("target") or (not UnitIsUnit(lastManualTargetUid or "Empty", "target")) then
+        Output("Got aggro! " .. WrapTextInColorCode("Unknown enemy", AlertaOptions.COLOR_CODES.Critical))
+        self:PlaySound(nil)
+    end
+end
+
+-- Target changed
+function alerta:PLAYER_TARGET_CHANGED()
+    local currentTargetUid = UnitGUID("target")
+    if not currentTargetUid == nil and not UnitIsUnit(currentTargetUid or "Empty", lastManualTargetUid or "Empty") then
+        self:TrackMob(currentTargetUid)
+    end
+end
+
+-- Remember last target of the player
+function alerta:UNIT_TARGET()
+    lastManualTargetUid = UnitGUID("target")
+    self:TrackMob(lastManualTargetUid)
 end
 
 -- Unit casted a spell
@@ -183,5 +208,7 @@ alerta:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
 alerta:RegisterEvent("UNIT_SPELLCAST_SENT")
 alerta:RegisterEvent("NAME_PLATE_UNIT_ADDED")
 alerta:RegisterEvent("PLAYER_REGEN_ENABLED")
+alerta:RegisterEvent("PLAYER_REGEN_DISABLED")
+alerta:RegisterEvent("UNIT_TARGET")
 alerta:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 alerta:SetScript("OnEvent", alerta.OnEvent)
